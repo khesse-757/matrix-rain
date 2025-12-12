@@ -2,7 +2,6 @@
 Tests for matrix rain module.
 """
 
-import pytest
 from matrix_rain.matrix import MatrixRain, RainDrop
 
 
