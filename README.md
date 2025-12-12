@@ -1,6 +1,6 @@
 # matrix-rain
 
-A brief description of what your project does.
+Matrix letters rain down.
 
 ## Installation
 
