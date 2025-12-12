@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix Rain</title>
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        #canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border: 1px solid #0f0;
+            border-radius: 5px;
+            z-index: 10;
+        }
+        
+        .controls button {
+            background: #000;
+            color: #0f0;
+            border: 1px solid #0f0;
+            padding: 8px 15px;
+            margin: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s;
+        }
+        
+        .controls button:hover {
+            background: #0f0;
+            color: #000;
+        }
+        
+        .info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border: 1px solid #0f0;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+        
+        .info a {
+            color: #0f0;
+            text-decoration: none;
+        }
+        
+        .info a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    
+    <div class="controls">
+        <button id="pauseBtn">Pause</button>
+        <button id="resetBtn">Reset</button>
+    </div>
+    
+    <div class="info">
+        <div>Matrix Rain Visualizer</div>
+        <div><a href="https://github.com/khesse-757/matrix-rain" target="_blank">View Source</a></div>
+    </div>
+
+    <script type="py" src="./matrix.py" config="./pyscript.toml"></script>
+    <script type="py">
+        import js
+        from pyodide.ffi import create_proxy
+        import random
+        import string
+        import math
+        
+        canvas = js.document.getElementById("canvas")
+        ctx = canvas.getContext("2d")
+        
+        # Set canvas size
+        canvas.width = js.window.innerWidth
+        canvas.height = js.window.innerHeight
+        
+        # Matrix rain settings
+        font_size = 16
+        columns = canvas.width // font_size
+        drops = [0] * columns
+        characters = string.ascii_letters + string.digits + "!@#$%^&*()"
+        
+        # Animation state
+        paused = False
+        
+        # Mouse/touch interaction
+        mouse_x = -1000
+        mouse_y = -1000
+        repel_radius = 100
+        
+        def draw():
+            # Semi-transparent black for trail effect
+            ctx.fillStyle = "rgba(0, 0, 0, 0.05)"
+            ctx.fillRect(0, 0, canvas.width, canvas.height)
+            
+            ctx.fillStyle = "#0f0"
+            ctx.font = f"{font_size}px monospace"
+            
+            for i in range(len(drops)):
+                # Random character
+                char = random.choice(characters)
+                x = i * font_size
+                y = drops[i] * font_size
+                
+                # Calculate distance from mouse
+                dx = x - mouse_x
+                dy = y - mouse_y
+                distance = math.sqrt(dx * dx + dy * dy)
+                
+                # Repel effect
+                if distance < repel_radius:
+                    # Push drop away from mouse
+                    angle = math.atan2(dy, dx)
+                    push_force = (repel_radius - distance) / repel_radius
+                    offset_x = math.cos(angle) * push_force * 30
+                    x += offset_x
+                
+                ctx.fillText(char, x, y)
+                
+                # Reset drop to top randomly
+                if y > canvas.height and random.random() > 0.975:
+                    drops[i] = 0
+                
+                drops[i] += 1
+        
+        def animate(timestamp):
+            if not paused:
+                draw()
+            js.window.requestAnimationFrame(create_proxy(animate))
+        
+        def toggle_pause(event):
+            global paused
+            paused = not paused
+            btn = js.document.getElementById("pauseBtn")
+            btn.textContent = "Resume" if paused else "Pause"
+        
+        def reset(event):
+            global drops
+            drops = [0] * columns
+            
+            # --- FIX START ---
+            # Completely clear the screen with solid black to remove old trails
+            ctx.fillStyle = "#000"
+            ctx.fillRect(0, 0, canvas.width, canvas.height)
+            
+            # Force a single draw call to show the new state immediately
+            draw()
+            # --- FIX END ---
+        
+        def resize(event):
+            global columns, drops
+            canvas.width = js.window.innerWidth
+            canvas.height = js.window.innerHeight
+            columns = canvas.width // font_size
+            drops = [0] * columns
+        
+        def mouse_move(event):
+            global mouse_x, mouse_y
+            mouse_x = event.clientX
+            mouse_y = event.clientY
+        
+        def touch_move(event):
+            global mouse_x, mouse_y
+            if event.touches.length > 0:
+                mouse_x = event.touches[0].clientX
+                mouse_y = event.touches[0].clientY
+                event.preventDefault()
+        
+        def mouse_leave(event):
+            global mouse_x, mouse_y
+            mouse_x = -1000
+            mouse_y = -1000
+        
+        # Event listeners
+        js.document.getElementById("pauseBtn").addEventListener("click", create_proxy(toggle_pause))
+        js.document.getElementById("resetBtn").addEventListener("click", create_proxy(reset))
+        js.window.addEventListener("resize", create_proxy(resize))
+        canvas.addEventListener("mousemove", create_proxy(mouse_move))
+        canvas.addEventListener("mouseleave", create_proxy(mouse_leave))
+        canvas.addEventListener("touchmove", create_proxy(touch_move))
+        canvas.addEventListener("touchend", create_proxy(mouse_leave))
+        
+        # Start animation
+        js.window.requestAnimationFrame(create_proxy(animate))
+    </script>
+</body>
+</html>

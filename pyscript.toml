@@ -1,0 +1,5 @@
+name = "Matrix Rain"
+description = "Matrix-style rain effect visualizer"
+
+[files]
+"./src/matrix_rain/matrix.py" = "./matrix.py"
