@@ -38,9 +38,7 @@ htmlcov/
 *.cover
 
 # Sphinx documentation
-docs/_build/
 docsrc/_build/
-build/docs/
 
 # IDEs
 .idea/
