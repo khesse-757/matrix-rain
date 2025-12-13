@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Usage &mdash; matrix-rain 1.1.0 documentation</title>
+  <title>Matrix Rain Documentation &mdash; matrix-rain 1.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
@@ -45,12 +45,16 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#basic-usage">Basic Usage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#environment-variables">Environment Variables</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Matrix Rain Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#live-demo">Live Demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#quick-example">Quick Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#source-code">Source Code</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="#indices">Indices</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
 </ul>
 
@@ -68,7 +72,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Usage</li>
+      <li class="breadcrumb-item active">Matrix Rain Documentation</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/usage.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -78,33 +82,59 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="usage">
-<h1>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h1>
-<section id="basic-usage">
-<h2>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading"></a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">matrix_rain</span><span class="w"> </span><span class="kn">import</span> <span class="n">YourClass</span>
-
-<span class="n">obj</span> <span class="o">=</span> <span class="n">YourClass</span><span class="p">()</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">do_something</span><span class="p">()</span>
-</pre></div>
+  <section id="matrix-rain-documentation">
+<h1>Matrix Rain Documentation<a class="headerlink" href="#matrix-rain-documentation" title="Link to this heading"></a></h1>
+<p>A PyScript-powered Matrix-style rain effect visualizer with interactive controls.</p>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#from-pypi">From PyPI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#from-source">From Source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#development-installation">Development Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api.html#module-matrix_rain">matrix_rain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#module-matrix_rain.config">matrix_rain.config</a></li>
+</ul>
+</li>
+</ul>
 </div>
-</section>
-<section id="configuration">
-<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">matrix_rain.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span>
-
-<span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="environment-variables">
-<h2>Environment Variables<a class="headerlink" href="#environment-variables" title="Link to this heading"></a></h2>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>Matrix Rain is an interactive visualizer that creates the iconic “digital rain” effect from The Matrix.
+Built with PyScript, it runs entirely in the browser using Python.</p>
+<p>Features:</p>
 <ul class="simple">
-<li><p>DEBUG - Enable debug mode (default: false)</p></li>
-<li><p>LOG_LEVEL - Set logging level (default: INFO)</p></li>
-<li><p>DATA_DIR - Directory for data files</p></li>
+<li><p>Interactive mouse/touch repulsion effect</p></li>
+<li><p>Speed controls (slow, normal, fast)</p></li>
+<li><p>Random speed variation per column</p></li>
+<li><p>Pause and reset controls</p></li>
+<li><p>Fully responsive on desktop and mobile</p></li>
 </ul>
 </section>
+<section id="live-demo">
+<h2>Live Demo<a class="headerlink" href="#live-demo" title="Link to this heading"></a></h2>
+<p>Visit <a class="reference external" href="https://rain.kahdev.me">rain.kahdev.me</a> to see it in action.</p>
+</section>
+<section id="quick-example">
+<h2>Quick Example<a class="headerlink" href="#quick-example" title="Link to this heading"></a></h2>
+<p>The visualizer runs in your browser. Simply open the page and interact with the falling characters
+by moving your mouse or finger across the screen.</p>
+</section>
+<section id="source-code">
+<h2>Source Code<a class="headerlink" href="#source-code" title="Link to this heading"></a></h2>
+<p>View the source on <a class="reference external" href="https://github.com/khesse-757/matrix-rain">GitHub</a>.</p>
+</section>
+</section>
+<section id="indices">
+<h1>Indices<a class="headerlink" href="#indices" title="Link to this heading"></a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+</ul>
 </section>
 
 
