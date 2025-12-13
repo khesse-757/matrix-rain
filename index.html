@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Matrix Rain</title>
     <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
     <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
@@ -11,6 +11,8 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-user-select: none;
+            user-select: none;
         }
         
         body {
@@ -20,6 +22,7 @@
             overflow: hidden;
             height: 100vh;
             touch-action: none;
+            -webkit-touch-callout: none;
         }
         
         #canvas {
@@ -39,6 +42,7 @@
             border: 1px solid #0f0;
             border-radius: 5px;
             z-index: 10;
+            touch-action: auto;
         }
         
         .controls button {
@@ -50,6 +54,7 @@
             cursor: pointer;
             font-family: 'Courier New', monospace;
             transition: all 0.3s;
+            touch-action: auto;
         }
         
         .controls button:hover {
@@ -164,7 +169,7 @@
         
         # Animation state
         paused = False
-        speed = 1.0  # Speed multiplier: 0.5 = slow, 1.0 = normal, 2.0 = fast
+        speed = 1.0  # Speed multiplier: 0.3 = slow, 1.0 = normal, 1.8 = fast
         random_speeds = False  # Whether to use random individual speeds
         
         # Mouse/touch interaction
@@ -255,13 +260,13 @@
                     btn.classList.remove("active")
         
         def set_slow(event):
-            set_speed(0.5, "slowBtn")
+            set_speed(0.3, "slowBtn")
         
         def set_normal(event):
             set_speed(1.0, "normalBtn")
         
         def set_fast(event):
-            set_speed(2.0, "fastBtn")
+            set_speed(1.8, "fastBtn")
         
         def toggle_random_speeds(event):
             global random_speeds
@@ -290,33 +295,32 @@
             else:
                 initialize_uniform_speeds()
         
+        def update_mouse_position(x, y):
+            global mouse_x, mouse_y
+            mouse_x = x
+            mouse_y = y
+        
         def mouse_move(event):
-            global mouse_x, mouse_y
-            mouse_x = event.clientX
-            mouse_y = event.clientY
+            update_mouse_position(event.clientX, event.clientY)
         
-        def touch_move(event):
-            global mouse_x, mouse_y
-            # Prevent default scrolling behavior
-            event.preventDefault()
-            # Track continuous touch movement
-            if event.touches.length > 0:
-                touch = event.touches[0]
-                mouse_x = touch.clientX
-                mouse_y = touch.clientY
-        
-        def touch_start(event):
-            global mouse_x, mouse_y
-            event.preventDefault()
-            if event.touches.length > 0:
-                touch = event.touches[0]
-                mouse_x = touch.clientX
-                mouse_y = touch.clientY
+        def handle_touch(event):
+            # Only handle touches on the canvas, not on controls
+            target = event.target
+            if target.id == "canvas":
+                event.preventDefault()
+                if event.touches.length > 0:
+                    touch = event.touches[0]
+                    update_mouse_position(touch.clientX, touch.clientY)
         
         def mouse_leave(event):
             global mouse_x, mouse_y
             mouse_x = -1000
             mouse_y = -1000
+        
+        def touch_end(event):
+            # Only clear if no more touches
+            if event.touches.length == 0:
+                mouse_leave(event)
         
         # Event listeners
         js.document.getElementById("pauseBtn").addEventListener("click", create_proxy(toggle_pause))
@@ -328,9 +332,9 @@
         js.window.addEventListener("resize", create_proxy(resize))
         canvas.addEventListener("mousemove", create_proxy(mouse_move))
         canvas.addEventListener("mouseleave", create_proxy(mouse_leave))
-        canvas.addEventListener("touchstart", create_proxy(touch_start))
-        canvas.addEventListener("touchmove", create_proxy(touch_move))
-        canvas.addEventListener("touchend", create_proxy(mouse_leave))
+        js.document.addEventListener("touchstart", create_proxy(handle_touch), {"passive": False})
+        js.document.addEventListener("touchmove", create_proxy(handle_touch), {"passive": False})
+        js.document.addEventListener("touchend", create_proxy(touch_end), {"passive": False})
         
         # Start animation
         js.window.requestAnimationFrame(create_proxy(animate))
