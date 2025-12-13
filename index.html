@@ -19,6 +19,7 @@
             font-family: 'Courier New', monospace;
             overflow: hidden;
             height: 100vh;
+            touch-action: none;
         }
         
         #canvas {
@@ -26,6 +27,7 @@
             width: 100%;
             height: 100%;
             cursor: pointer;
+            touch-action: none;
         }
         
         .controls {
@@ -55,6 +57,42 @@
             color: #000;
         }
         
+        .speed-control {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #0f0;
+        }
+        
+        .speed-control label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+        
+        .speed-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .speed-buttons button {
+            flex: 1;
+            padding: 5px;
+            font-size: 11px;
+        }
+        
+        .speed-buttons button.active {
+            background: #0f0;
+            color: #000;
+        }
+        
+        .toggle-control {
+            margin-top: 10px;
+        }
+        
+        .toggle-control button {
+            width: 100%;
+        }
+        
         .info {
             position: absolute;
             bottom: 20px;
@@ -82,6 +120,19 @@
     <div class="controls">
         <button id="pauseBtn">Pause</button>
         <button id="resetBtn">Reset</button>
+        
+        <div class="speed-control">
+            <label>Speed:</label>
+            <div class="speed-buttons">
+                <button id="slowBtn">Slow</button>
+                <button id="normalBtn" class="active">Normal</button>
+                <button id="fastBtn">Fast</button>
+            </div>
+        </div>
+        
+        <div class="toggle-control">
+            <button id="randomBtn">Random Speeds: Off</button>
+        </div>
     </div>
     
     <div class="info">
@@ -108,15 +159,28 @@
         font_size = 16
         columns = canvas.width // font_size
         drops = [0] * columns
+        drop_speeds = [1.0] * columns  # Individual speed for each column
         characters = string.ascii_letters + string.digits + "!@#$%^&*()"
         
         # Animation state
         paused = False
+        speed = 1.0  # Speed multiplier: 0.5 = slow, 1.0 = normal, 2.0 = fast
+        random_speeds = False  # Whether to use random individual speeds
         
         # Mouse/touch interaction
         mouse_x = -1000
         mouse_y = -1000
         repel_radius = 100
+        
+        def initialize_random_speeds():
+            """Set random speeds for each column."""
+            global drop_speeds
+            drop_speeds = [random.uniform(0.3, 2.0) for _ in range(columns)]
+        
+        def initialize_uniform_speeds():
+            """Set uniform speeds for all columns."""
+            global drop_speeds
+            drop_speeds = [1.0] * columns
         
         def draw():
             # Semi-transparent black for trail effect
@@ -132,26 +196,29 @@
                 x = i * font_size
                 y = drops[i] * font_size
                 
-                # Calculate distance from mouse
-                dx = x - mouse_x
-                dy = y - mouse_y
-                distance = math.sqrt(dx * dx + dy * dy)
-                
-                # Repel effect
-                if distance < repel_radius:
-                    # Push drop away from mouse
-                    angle = math.atan2(dy, dx)
-                    push_force = (repel_radius - distance) / repel_radius
-                    offset_x = math.cos(angle) * push_force * 30
-                    x += offset_x
-                
-                ctx.fillText(char, x, y)
+                # Only draw if drop is visible (not above screen)
+                if y > 0:
+                    # Calculate distance from mouse
+                    dx = x - mouse_x
+                    dy = y - mouse_y
+                    distance = math.sqrt(dx * dx + dy * dy)
+                    
+                    # Repel effect
+                    if distance < repel_radius:
+                        # Push drop away from mouse
+                        angle = math.atan2(dy, dx)
+                        push_force = (repel_radius - distance) / repel_radius
+                        offset_x = math.cos(angle) * push_force * 30
+                        x += offset_x
+                    
+                    ctx.fillText(char, x, y)
                 
                 # Reset drop to top randomly
                 if y > canvas.height and random.random() > 0.975:
                     drops[i] = 0
                 
-                drops[i] += 1
+                # Apply speed multiplier and individual column speed
+                drops[i] += speed * drop_speeds[i]
         
         def animate(timestamp):
             if not paused:
@@ -168,21 +235,60 @@
             global drops
             drops = [0] * columns
             
-            # --- FIX START ---
             # Completely clear the screen with solid black to remove old trails
             ctx.fillStyle = "#000"
             ctx.fillRect(0, 0, canvas.width, canvas.height)
             
             # Force a single draw call to show the new state immediately
             draw()
-            # --- FIX END ---
+        
+        def set_speed(new_speed, button_id):
+            global speed
+            speed = new_speed
+            
+            # Update button styles
+            for btn_id in ["slowBtn", "normalBtn", "fastBtn"]:
+                btn = js.document.getElementById(btn_id)
+                if btn_id == button_id:
+                    btn.classList.add("active")
+                else:
+                    btn.classList.remove("active")
+        
+        def set_slow(event):
+            set_speed(0.5, "slowBtn")
+        
+        def set_normal(event):
+            set_speed(1.0, "normalBtn")
+        
+        def set_fast(event):
+            set_speed(2.0, "fastBtn")
+        
+        def toggle_random_speeds(event):
+            global random_speeds
+            random_speeds = not random_speeds
+            
+            btn = js.document.getElementById("randomBtn")
+            if random_speeds:
+                btn.textContent = "Random Speeds: On"
+                btn.classList.add("active")
+                initialize_random_speeds()
+            else:
+                btn.textContent = "Random Speeds: Off"
+                btn.classList.remove("active")
+                initialize_uniform_speeds()
         
         def resize(event):
-            global columns, drops
+            global columns, drops, drop_speeds
             canvas.width = js.window.innerWidth
             canvas.height = js.window.innerHeight
             columns = canvas.width // font_size
             drops = [0] * columns
+            
+            # Reinitialize speeds based on current mode
+            if random_speeds:
+                initialize_random_speeds()
+            else:
+                initialize_uniform_speeds()
         
         def mouse_move(event):
             global mouse_x, mouse_y
@@ -191,10 +297,21 @@
         
         def touch_move(event):
             global mouse_x, mouse_y
+            # Prevent default scrolling behavior
+            event.preventDefault()
+            # Track continuous touch movement
             if event.touches.length > 0:
-                mouse_x = event.touches[0].clientX
-                mouse_y = event.touches[0].clientY
-                event.preventDefault()
+                touch = event.touches[0]
+                mouse_x = touch.clientX
+                mouse_y = touch.clientY
+        
+        def touch_start(event):
+            global mouse_x, mouse_y
+            event.preventDefault()
+            if event.touches.length > 0:
+                touch = event.touches[0]
+                mouse_x = touch.clientX
+                mouse_y = touch.clientY
         
         def mouse_leave(event):
             global mouse_x, mouse_y
@@ -204,9 +321,14 @@
         # Event listeners
         js.document.getElementById("pauseBtn").addEventListener("click", create_proxy(toggle_pause))
         js.document.getElementById("resetBtn").addEventListener("click", create_proxy(reset))
+        js.document.getElementById("slowBtn").addEventListener("click", create_proxy(set_slow))
+        js.document.getElementById("normalBtn").addEventListener("click", create_proxy(set_normal))
+        js.document.getElementById("fastBtn").addEventListener("click", create_proxy(set_fast))
+        js.document.getElementById("randomBtn").addEventListener("click", create_proxy(toggle_random_speeds))
         js.window.addEventListener("resize", create_proxy(resize))
         canvas.addEventListener("mousemove", create_proxy(mouse_move))
         canvas.addEventListener("mouseleave", create_proxy(mouse_leave))
+        canvas.addEventListener("touchstart", create_proxy(touch_start))
         canvas.addEventListener("touchmove", create_proxy(touch_move))
         canvas.addEventListener("touchend", create_proxy(mouse_leave))
         
