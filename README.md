@@ -1,49 +1,50 @@
-# matrix-rain
+# Matrix Rain
 
-Matrix letters rain down.
+Matrix-style rain effect visualizer with PyScript.
 
-## Installation
+## Live Demo
 
-```bash
-pip install matrix-rain
-```
+[rain.kahdev.me](https://rain.kahdev.me)
 
-Or from source:
+## Documentation
 
-```bash
-git clone https://github.com/khesse-757/matrix-rain.git
-cd matrix-rain
-pip install -e .
-```
+[View Documentation](https://rain.kahdev.me/docs/)
 
-## Usage
+## Features
 
-```python
-from matrix_rain import YourClass
+* Interactive mouse/touch repulsion effect
+* Speed controls (slow, normal, fast)
+* Random speed variation
+* Fully responsive
 
-obj = YourClass()
-result = obj.do_something()
-```
-
-## Development
+## Local Development
 
 ```bash
 # Clone the repository
-git clone https://github.com/khesse-757/matrix-rain.git
+git clone git@github.com:khesse-757/matrix-rain.git
 cd matrix-rain
 
 # Create virtual environment
 python3 -m venv venv
 source venv/bin/activate
 
-# Install with dev dependencies
+# Install dependencies
 pip install -e .[dev]
 
 # Run tests
 pytest
 
-# Check code quality
-ruff check .
+# Serve locally
+python3 -m http.server 8000
+```
+
+## Docker
+
+```bash
+# Build and run
+docker compose up
+
+# Access at http://localhost:8000
 ```
 
 ## License
