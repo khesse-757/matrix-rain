@@ -1,3 +1,5 @@
+![Matrix Rain](matrix-rain.jpg)
+
 # Matrix Rain
 
 Matrix-style rain effect visualizer with PyScript.
@@ -49,4 +51,4 @@ docker compose up
 
 ## License
 
-MIT License - see LICENSE file for details.
+MIT
